@@ -7,7 +7,7 @@
 
 // The JOS kernel debugger can understand some debugging information
 // in the STABS format.  For more information on this format, see
-// http://sources.redhat.com/gdb/onlinedocs/stabs_toc.html
+// http://sourceware.org/gdb/onlinedocs/stabs.html
 
 // The constants below define some symbol types used by various debuggers
 // and compilers.  JOS uses the N_SO, N_SOL, N_FUN, and N_SLINE types.
