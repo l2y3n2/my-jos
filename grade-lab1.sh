@@ -38,8 +38,8 @@ END { printf("\n") }' | grep '^00000000 00000000 00000001 00000002 00000003 0000
 		fail "($args)"
 	fi
 
-	syms=`grep "kern/init.c:[0-9]*: test_backtrace[+]" jos.out`
-	symcnt=`grep "kern/init.c:[0-9]*: test_backtrace[+]" jos.out | wc -l`
+	syms=`grep "kern/init.c:[0-9]*:  *test_backtrace[+]" jos.out`
+	symcnt=`grep "kern/init.c:[0-9]*:  *test_backtrace[+]" jos.out | wc -l`
 	echo_n "   Symbols "
 	if [ $symcnt -eq 6 ]; then
 		pass
