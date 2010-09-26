@@ -51,7 +51,7 @@ struct PushRegs {
 	uint32_t reg_edx;
 	uint32_t reg_ecx;
 	uint32_t reg_eax;
-};
+} __attribute__((packed));
 
 struct Trapframe {
 	struct PushRegs tf_regs;
@@ -70,7 +70,7 @@ struct Trapframe {
 	uintptr_t tf_esp;
 	uint16_t tf_ss;
 	uint16_t tf_padding4;
-};
+} __attribute__((packed));
 
 
 #endif /* !__ASSEMBLER__ */
