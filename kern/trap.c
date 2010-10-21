@@ -120,7 +120,7 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle clock interrupts.
 	// LAB 4: Your code here.
 
-	// Handle spurious interupts
+	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
 	if (tf->tf_trapno == IRQ_OFFSET + IRQ_SPURIOUS) {
