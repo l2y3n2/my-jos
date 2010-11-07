@@ -44,7 +44,7 @@ struct Dir
 uint32_t nblocks;
 char *diskmap, *diskpos;
 struct Super *super;
-char *bitmap;
+uint32_t *bitmap;
 
 void
 panic(const char *fmt, ...)
@@ -125,7 +125,7 @@ finishdisk(void)
 	int r, i;
 
 	for (i = 0; i < blockof(diskpos); ++i)
-		bitmap[i/8] &= ~(1<<(i%8));
+		bitmap[i/32] &= ~(1<<(i%32));
 
 	if ((r = msync(diskmap, nblocks * BLKSIZE, MS_SYNC)) < 0)
 		panic("msync: %s", strerror(errno));
