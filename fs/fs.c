@@ -124,7 +124,7 @@ fs_init(void)
 //	-E_NOT_FOUND if the function needed to allocate an indirect block, but
 //		alloc was 0.
 //	-E_NO_DISK if there's no space on the disk for an indirect block.
-//	-E_INVAL if filebno is out of range (it's >= NINDIRECT).
+//	-E_INVAL if filebno is out of range (it's >= NDIRECT + NINDIRECT).
 //
 // Analogy: This is like pgdir_walk for files.  
 // Hint: Don't forget to clear any block you allocate.
