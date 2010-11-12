@@ -12,6 +12,8 @@
 #include <kern/trap.h>
 #include <kern/sched.h>
 #include <kern/picirq.h>
+#include <kern/time.h>
+#include <kern/pci.h>
 
 
 void
@@ -42,20 +44,28 @@ i386_init(void)
 	pic_init();
 	kclock_init();
 
+	time_init();
+	pci_init();
+
 	// Should always have an idle process as first one.
 	ENV_CREATE(user_idle);
 
 	// Start fs.
 	ENV_CREATE(fs_fs);
 
+#if !defined(TEST_NO_NS)
+	// Start ns.
+	ENV_CREATE(net_ns);
+#endif
+
 #if defined(TEST)
 	// Don't touch -- used by grading script!
 	ENV_CREATE2(TEST, TESTSIZE);
 #else
 	// Touch all you want.
-	// ENV_CREATE(user_writemotd);
-	// ENV_CREATE(user_testfile);
-	// ENV_CREATE(user_icode);
+	// ENV_CREATE(net_testoutput);
+	// ENV_CREATE(user_echosrv);
+	// ENV_CREATE(user_httpd);
 #endif // TEST*
 
 	// Schedule and run the first user environment!
