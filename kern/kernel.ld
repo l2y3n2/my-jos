@@ -10,7 +10,7 @@ SECTIONS
 	/* Load the kernel at this address: "." means the current address */
 	. = 0xF0100000;
 
-	.text : {
+	.text : AT(0x100000) {
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 	}
 

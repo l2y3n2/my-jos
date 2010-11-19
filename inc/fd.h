@@ -59,5 +59,7 @@ int	dev_lookup(int devid, struct Dev **dev_store);
 
 extern struct Dev devfile;
 extern struct Dev devsock;
+extern struct Dev devcons;
+extern struct Dev devpipe;
 
 #endif	// not JOS_INC_FD_H

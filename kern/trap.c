@@ -134,6 +134,9 @@ trap_dispatch(struct Trapframe *tf)
 	}
 
 
+	// Handle keyboard and serial interrupts.
+	// LAB 7: Your code here.
+
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);
 	if (tf->tf_cs == GD_KT)
