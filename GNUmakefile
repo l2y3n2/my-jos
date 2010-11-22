@@ -134,7 +134,7 @@ PORT80	:= $(shell expr $(GDBPORT) + 2)
 IMAGES = $(OBJDIR)/kern/kernel.img $(OBJDIR)/fs/fs.img
 QEMUOPTS = -hda $(OBJDIR)/kern/kernel.img -hdb $(OBJDIR)/fs/fs.img -serial mon:stdio \
 	   -net user -net nic,model=i82559er -redir tcp:$(PORT7)::7 \
-	   -redir tcp:$(PORT80)::80 $(QEMUEXTRA)
+	   -redir tcp:$(PORT80)::80 -redir udp:$(PORT7)::7 $(QEMUEXTRA)
 
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
