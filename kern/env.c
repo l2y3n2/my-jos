@@ -199,11 +199,14 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// Also clear the IPC receiving flag.
 	e->env_ipc_recving = 0;
 
+	// If this is the file server (e == &envs[1]) give it I/O privileges.
+	// LAB 5: Your code here.
+
 	// commit the allocation
 	LIST_REMOVE(e, env_link);
 	*newenv_store = e;
 
-	cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+	// cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 	return 0;
 }
 
@@ -222,7 +225,7 @@ segment_alloc(struct Env *e, void *va, size_t len)
 	//
 	// Hint: It is easier to use segment_alloc if the caller can pass
 	//   'va' and 'len' values that are not page-aligned.
-	//   You should round va down, and round len up.
+	//   You should round va down, and round (va + len) up.
 	struct Page *p = NULL;
 	int i, r;
 
@@ -370,7 +373,7 @@ env_free(struct Env *e)
 		lcr3(boot_cr3);
 
 	// Note the environment's demise.
-	cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+	// cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
 	// Flush all mapped pages in the user portion of the address space
 	static_assert(UTOP % PTSIZE == 0);
