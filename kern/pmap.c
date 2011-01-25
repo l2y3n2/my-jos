@@ -122,8 +122,14 @@ boot_alloc(uint32_t n, uint32_t align)
 	//	Step 2: save current value of boot_freemem as allocated chunk
 	//	Step 3: increase boot_freemem to record allocation
 	//	Step 4: return allocated chunk
+	boot_freemem = ROUNDUP(boot_freemem, align);
+	v = boot_freemem;
+	boot_freemem += n;
 
-	return NULL;
+	if (PADDR(boot_freemem) >= maxpa)
+		panic("No enough memory");
+
+	return v;
 }
 
 // Set up a two-level page table:
@@ -144,9 +150,6 @@ i386_vm_init(void)
 	pde_t* pgdir;
 	uint32_t cr0;
 	size_t n;
-
-	// Delete this line:
-	panic("i386_vm_init: This function is not finished\n");
 
 	//////////////////////////////////////////////////////////////////////
 	// create initial page directory.
@@ -175,7 +178,7 @@ i386_vm_init(void)
 	// array.  'npage' is the number of physical pages in memory.
 	// User-level programs will get read-only access to the array as well.
 	// Your code goes here:
-
+	pages = boot_alloc(npage * sizeof(struct Page), PGSIZE);
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -433,6 +436,10 @@ check_va2pa(pde_t *pgdir, uintptr_t va)
 void
 page_init(void)
 {
+	int i;
+
+	LIST_INIT(&page_free_list);
+
 	// The example code here marks all physical pages as free.
 	// However this is not truly the case.  What memory is free?
 	//  1) Mark physical page 0 as in use.
@@ -447,11 +454,15 @@ page_init(void)
 	//     page tables and other data structures?
 	//
 	// Change the code to reflect this.
-	int i;
-	LIST_INIT(&page_free_list);
-	for (i = 0; i < npage; i++) {
+	for (i = 1; i < basemem / PGSIZE; i++) {
 		pages[i].pp_ref = 0;
-		LIST_INSERT_HEAD(&page_free_list, &pages[i], pp_link);
+		LIST_INSERT_HEAD(&page_free_list, pages + i, pp_link);
+	}
+
+	for (i = ROUNDUP(PADDR(boot_freemem), PGSIZE) / PGSIZE;
+			i < npage; i++) {
+		pages[i].pp_ref = 0;
+		LIST_INSERT_HEAD(&page_free_list, pages + i, pp_link);
 	}
 }
 
@@ -484,7 +495,14 @@ int
 page_alloc(struct Page **pp_store)
 {
 	// Fill this function in
-	return -E_NO_MEM;
+	if (LIST_EMPTY(&page_free_list))
+		return -E_NO_MEM;
+
+	*pp_store = LIST_FIRST(&page_free_list);
+	LIST_REMOVE(*pp_store, pp_link);
+	page_initpp(*pp_store);
+
+	return 0;
 }
 
 //
@@ -495,6 +513,7 @@ void
 page_free(struct Page *pp)
 {
 	// Fill this function in
+	LIST_INSERT_HEAD(&page_free_list, pp, pp_link);
 }
 
 //
