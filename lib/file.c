@@ -94,7 +94,24 @@ devfile_read(struct Fd *fd, void *buf, size_t n)
 	// bytes read will be written back to fsipcbuf by the file
 	// system server.
 	// LAB 5: Your code here
-	panic("devfile_read not implemented");
+	int r, len = n;
+
+	while (len > 0) {
+		fsipcbuf.read.req_fileid = fd->fd_file.id;
+		fsipcbuf.read.req_n = len;
+
+		r = fsipc(FSREQ_READ, NULL);
+		if (r < 0)
+			return r;
+		if (r == 0)
+			break;
+
+		memmove(buf, fsipcbuf.readRet.ret_buf, r);
+		len -= r;
+		buf += r;
+	}
+
+	return n - len;
 }
 
 // Write at most 'n' bytes from 'buf' to 'fd' at the current seek position.
@@ -110,7 +127,25 @@ devfile_write(struct Fd *fd, const void *buf, size_t n)
 	// remember that write is always allowed to write *fewer*
 	// bytes than requested.
 	// LAB 5: Your code here
-	panic("devfile_write not implemented");
+	int r, len = n;
+
+	while (len > 0) {
+		r = MIN(len, sizeof(fsipcbuf.write.req_buf));
+		fsipcbuf.write.req_fileid = fd->fd_file.id;
+		fsipcbuf.write.req_n = r;
+		memmove(fsipcbuf.write.req_buf, buf, r);
+
+		r = fsipc(FSREQ_WRITE, NULL);
+		if (r < 0)
+			return r;
+		if (r == 0)
+			break;
+
+		len -= r;
+		buf += r;
+	}
+
+	return n - len;
 }
 
 static int
