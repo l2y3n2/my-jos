@@ -68,6 +68,13 @@ TRAPHANDLER(irq_handler_align, T_ALIGN, 0);
 TRAPHANDLER_NOEC(irq_handler_mchk, T_MCHK, 0);
 TRAPHANDLER_NOEC(irq_handler_simderr, T_SIMDERR, 0);
 TRAPHANDLER_NOEC(irq_handler_syscall, T_SYSCALL, 3);
+
+TRAPHANDLER_NOEC(irq_handler_timer, IRQ_OFFSET + IRQ_TIMER, 0);
+TRAPHANDLER_NOEC(irq_handler_kbd, IRQ_OFFSET + IRQ_KBD, 0);
+TRAPHANDLER_NOEC(irq_handler_serial, IRQ_OFFSET + IRQ_SERIAL, 0);
+TRAPHANDLER_NOEC(irq_handler_spurious, IRQ_OFFSET + IRQ_SPURIOUS, 0);
+TRAPHANDLER_NOEC(irq_handler_ide, IRQ_OFFSET + IRQ_IDE, 0);
+
 TRAPHANDLER_NOEC(irq_handler_default, T_DEFAULT, 0);
 
 
