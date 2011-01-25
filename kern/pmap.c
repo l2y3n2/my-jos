@@ -770,7 +770,29 @@ static uintptr_t user_mem_check_addr;
 int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
-	// LAB 3: Your code here. 
+	// LAB 3: Your code here.
+	pte_t *pte_entry;
+	const void *ptr;
+	uintptr_t tmpaddr;
+
+	tmpaddr = (uint32_t) va;
+	ptr = ROUNDDOWN(va, PGSIZE);
+	perm |= PTE_P;
+
+	while (ptr < va + len) {
+		if (ptr >= (void *) ULIM) {
+			user_mem_check_addr = tmpaddr;
+			return -E_FAULT;
+		}
+		pte_entry = pgdir_walk(env->env_pgdir, ptr, 0);
+		if (pte_entry == NULL || (*pte_entry & perm) != perm) {
+			user_mem_check_addr = tmpaddr;
+			return -E_FAULT;
+		}
+
+		ptr += PGSIZE;
+		tmpaddr = (uint32_t) ptr;
+	}
 
 	return 0;
 }

@@ -142,6 +142,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		// Make sure this memory is valid.
 		// Return -1 if it is not.  Hint: Call user_mem_check.
 		// LAB 3: Your code here.
+		user_mem_assert(curenv, usd, sizeof(struct UserStabData), 0);
 
 		stabs = usd->stabs;
 		stab_end = usd->stab_end;
@@ -150,6 +151,10 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 
 		// Make sure the STABS and string table memory is valid.
 		// LAB 3: Your code here.
+		user_mem_assert(curenv, stabs,
+				(void *) stab_end - (void *) stabs, 0);
+		user_mem_assert(curenv, stabstr,
+				(void *) stabstr - (void *) stabstr_end, 0);
 	}
 
 	// String table validity checks
