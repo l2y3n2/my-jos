@@ -52,13 +52,26 @@ static const char *trapname(int trapno)
 	return "(unknown trap)";
 }
 
+struct irq_handler {
+	uint32_t irq_id;
+	uintptr_t handler;
+	uint32_t priv_level;
+};
+
+extern struct irq_handler irq_handler_array[];
 
 void
 idt_init(void)
 {
 	extern struct Segdesc gdt[];
+	int i;
 	
 	// LAB 3: Your code here.
+	for (i = 0; irq_handler_array[i].irq_id != T_DEFAULT; i++) {
+		SETGATE(idt[irq_handler_array[i].irq_id], 0, GD_KT,
+				irq_handler_array[i].handler,
+				irq_handler_array[i].priv_level);
+	}
 
 	// Setup a TSS so that we get the right stack
 	// when we trap to the kernel.
