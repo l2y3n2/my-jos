@@ -269,6 +269,13 @@ struct Gatedesc {
 
 // Set up a normal interrupt/trap gate descriptor.
 // - istrap: 1 for a trap (= exception) gate, 0 for an interrupt gate.
+    //   see section 9.6.1.3 of the i386 reference: "The difference between
+    //   an interrupt gate and a trap gate is in the effect on IF (the
+    //   interrupt-enable flag). An interrupt that vectors through an
+    //   interrupt gate resets IF, thereby preventing other interrupts from
+    //   interfering with the current interrupt handler. A subsequent IRET
+    //   instruction restores IF to the value in the EFLAGS image on the
+    //   stack. An interrupt through a trap gate does not change IF."
 // - sel: Code segment selector for interrupt/trap handler
 // - off: Offset in code segment for interrupt/trap handler
 // - dpl: Descriptor Privilege Level -

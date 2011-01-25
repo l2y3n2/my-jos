@@ -167,7 +167,9 @@ distclean: realclean
 	rm -rf conf/gcc.mk
 
 grade: $(LABSETUP)grade-lab$(LAB).sh
-	$(V)$(MAKE) clean >/dev/null 2>/dev/null
+	@echo $(MAKE) clean
+	@$(MAKE) clean || \
+	  (echo "'make clean' failed.  HINT: Do you have another running instance of JOS?" && exit 1)
 	$(MAKE) all
 	sh $(LABSETUP)grade-lab$(LAB).sh
 
