@@ -20,14 +20,14 @@
 // |      Index     |      Index     |                     |
 // +----------------+----------------+---------------------+
 //  \--- PDX(la) --/ \--- PTX(la) --/ \---- PGOFF(la) ----/
-//  \----------- PPN(la) -----------/
+//  \----------- VPN(la) -----------/
 //
-// The PDX, PTX, PGOFF, and PPN macros decompose linear addresses as shown.
+// The PDX, PTX, PGOFF, and VPN macros decompose linear addresses as shown.
 // To construct a linear address la from PDX(la), PTX(la), and PGOFF(la),
 // use PGADDR(PDX(la), PTX(la), PGOFF(la)).
 
 // page number field of address
-#define PPN(la)		(((uintptr_t) (la)) >> PTXSHIFT)
+#define PPN(pa)		(((uintptr_t) (pa)) >> PTXSHIFT)
 #define VPN(la)		PPN(la)		// used to index into vpt[]
 
 // page directory index
