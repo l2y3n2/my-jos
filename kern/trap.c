@@ -144,6 +144,9 @@ trap_dispatch(struct Trapframe *tf)
 					tf->tf_regs.reg_edi,
 					tf->tf_regs.reg_esi);
 			return;
+		case IRQ_OFFSET + IRQ_TIMER:
+			sched_yield();
+			return;
 		default:
 			break;
 	}
