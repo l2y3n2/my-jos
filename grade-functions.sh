@@ -117,6 +117,9 @@ pass () {
 fail () {
 	passfailmsg WRONG "$@"
 	partpos=`expr $partpos + $pts`
+	if $verbose; then
+		exit 1
+	fi
 }
 
 
@@ -189,10 +192,6 @@ checkregexps () {
 			if egrep "^$i\$" jos.out >/dev/null
 			then
 				echo "got unexpected line '$i'"
-				if $verbose
-				then
-					exit 1
-				fi
 				okay=no
 			fi
 			not=false
@@ -201,10 +200,6 @@ checkregexps () {
 			if [ $? -ne 0 ]
 			then
 				echo "missing '$i'"
-				if $verbose
-				then
-					exit 1
-				fi
 				okay=no
 			fi
 			not=false
