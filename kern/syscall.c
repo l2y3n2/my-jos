@@ -12,6 +12,7 @@
 #include <kern/console.h>
 #include <kern/sched.h>
 #include <kern/time.h>
+#include <kern/e100.h>
 
 // Print a string to the system console.
 // The string is exactly 'len' characters long.
@@ -445,6 +446,22 @@ sys_time_msec(void)
 	return time_msec();
 }
 
+static int
+sys_send(void *data, size_t count)
+{
+	user_mem_assert(curenv, data, count, 0);
+
+	return e100_send_data(data, count);
+}
+
+static int
+sys_recv(void *data, size_t count)
+{
+	user_mem_assert(curenv, data, count, PTE_W);
+
+	return e100_recv_data(data, count);
+}
+
 // Dispatches to the correct kernel function, passing the arguments.
 int32_t
 syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
@@ -486,6 +503,10 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 			return sys_ipc_recv((void *) a1);
 		case SYS_time_msec:
 			return sys_time_msec();
+		case SYS_send:
+			return sys_send((void *) a1, a2);
+		case SYS_recv:
+			return sys_recv((void *) a1, a2);
 		default:
 			return -E_INVAL;
 	}
