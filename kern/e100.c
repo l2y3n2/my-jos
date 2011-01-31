@@ -22,8 +22,23 @@ struct cb {
 	struct cb *prev;
 } __attribute__((aligned(4), packed));
 
+struct rfd {
+	volatile uint16_t status;
+	uint16_t cmd;
+	uint32_t link;
+	uint32_t reserved;
+	volatile uint16_t count;
+	uint16_t capacity;
+	uint8_t data[ETH_PACK_SIZE];
+	struct rfd *next;
+	struct rfd *prev;
+} __attribute__((aligned(4), packed));
+
 static struct cb cbs[SHM_LENGTH];
 static struct cb *cb;
+
+static struct rfd rfds[SHM_LENGTH];
+static struct rfd *rfd;
 
 static void
 delay(void)
@@ -52,6 +67,22 @@ shm_init(void)
 	outw(e100_io_addr + 2, SCB_CMD_CU_START);
 
 	cb = cbs + 1;
+
+	for (i = 0; i < SHM_LENGTH; i++) {
+		rfds[i].cmd = 0;
+		rfds[i].status = 0;
+		rfds[i].count = 0;
+		rfds[i].capacity = ETH_PACK_SIZE;
+		rfds[i].next = rfds + (i + 1) % SHM_LENGTH;
+		rfds[i].prev = (i == 0) ? rfds + SHM_LENGTH - 1 : rfds + i - 1;
+		rfds[i].link = PADDR(rfds[i].next);
+	}
+	rfds[SHM_LENGTH - 1].cmd = RFD_CONTROL_EL;
+
+	outl(e100_io_addr + 4, PADDR(rfds));
+	outw(e100_io_addr + 2, SCB_CMD_RU_START);
+
+	rfd = rfds;
 }
 
 int
@@ -112,8 +143,42 @@ e100_send_data(void *data, size_t count)
 	return sent;
 }
 
+static int
+e100_unpack_rfd(void *data, size_t count)
+{
+	if (!(rfd->status & RFD_STATUS_C))
+		return 0;
+
+	if (count >= (rfd->count & RFD_SIZE_MASK))
+		count = rfd->count & RFD_SIZE_MASK;
+	else
+		return 0;
+
+	memmove(data, rfd->data, count);
+
+	rfd->cmd = RFD_CONTROL_EL;
+	rfd->status = 0;
+	rfd->count = 0;
+	rfd->capacity = ETH_PACK_SIZE;
+
+	rfd->prev->cmd &= ~RFD_CONTROL_EL;
+
+	return count;
+}
+
 int
 e100_recv_data(void *data, size_t count)
 {
-	return 0;
+	int ret;
+
+	ret = e100_unpack_rfd(data, count);
+	if (ret == 0)
+		return 0;
+
+	rfd = rfd->next;
+	if (ret != 0 && (inw(e100_io_addr) & SCB_STATUS_RU_MASK)
+			== RU_NO_RESOURCE)
+		outw(e100_io_addr + 2, SCB_CMD_RU_RESUME);
+
+	return ret;
 }
