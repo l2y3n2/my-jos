@@ -1,6 +1,6 @@
 #include "ns.h"
 
-#define N_FRAMES	8
+#define N_FRAMES	2
 #define FRAME_VA	(0x10000000 - N_FRAMES * PGSIZE)
 
 static union Nsipc *frames[N_FRAMES];

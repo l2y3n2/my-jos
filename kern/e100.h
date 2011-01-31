@@ -3,7 +3,7 @@
 
 #include <kern/pci.h>
 
-#define SHM_LENGTH	16
+#define SHM_LENGTH	32
 
 #define SCB_STATUS_CU_MASK	(3 << 6)
 #define CU_IDLE			(0 << 6)
