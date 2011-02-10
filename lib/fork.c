@@ -70,7 +70,11 @@ duppage(envid_t envid, unsigned pn)
 	if (!(vpt[pn] & PTE_P))
 		panic("duppage: page at %08x is not present", addr);
 
-	if (vpt[pn] & (PTE_W | PTE_COW)) {
+	if (vpt[pn] & PTE_SHARE) {
+		r = sys_page_map(0, addr, envid, addr, vpt[pn] & PTE_USER);
+		if (r < 0)
+			return r;
+	} else if (vpt[pn] & (PTE_W | PTE_COW)) {
 		r = sys_page_map(0, addr, envid, addr, PTE_P | PTE_U | PTE_COW);
 		if (r < 0)
 			return r;

@@ -277,6 +277,24 @@ static int
 copy_shared_pages(envid_t child)
 {
 	// LAB 7: Your code here.
+	int r, pn = 0;
+	void *addr;
+
+	while (pn < ((UXSTACKTOP - PGSIZE) >> PGSHIFT)) {
+		if (pn % NPTENTRIES == 0 && !(vpd[pn >> 10] & PTE_P)) {
+			pn += NPTENTRIES;
+			continue;
+		}
+		if ((vpt[pn] & PTE_P) && (vpt[pn] & PTE_SHARE)) {
+			addr = (void *) (pn << PGSHIFT);
+			r = sys_page_map(0, addr, child, addr,
+					vpt[pn] & PTE_USER);
+			if (r < 0)
+				return r;
+		}
+		pn++;
+	}
+
 	return 0;
 }
 
