@@ -70,7 +70,9 @@ openfile_alloc(struct OpenFile **o)
 	for (i = 0; i < MAXOPEN; i++) {
 		switch (pageref(opentab[i].o_fd)) {
 		case 0:
-			if ((r = sys_page_alloc(0, opentab[i].o_fd, PTE_P|PTE_U|PTE_W)) < 0)
+			r = sys_page_alloc(0, opentab[i].o_fd,
+					PTE_P | PTE_U | PTE_W | PTE_SHARE);
+			if (r < 0)
 				return r;
 			/* fall through */
 		case 1:
@@ -165,7 +167,7 @@ try_open:
 
 	// Share the FD page with the caller
 	*pg_store = o->o_fd;
-	*perm_store = PTE_P|PTE_U|PTE_W;
+	*perm_store = PTE_P | PTE_U | PTE_W | PTE_SHARE;
 	return 0;
 }
 
@@ -245,8 +247,12 @@ serve_write(envid_t envid, struct Fsreq_write *req)
 	if ((r = openfile_lookup(envid, req->req_fileid, &o)) < 0)
 		return r;
 
-	return file_write(o->o_file, req->req_buf, req->req_n,
+	r = file_write(o->o_file, req->req_buf, req->req_n,
 			o->o_fd->fd_offset);
+	if (r >= 0)
+		o->o_fd->fd_offset += r;
+
+	return r;
 }
 
 // Stat ipc->stat.req_fileid.  Return the file's struct Stat to the
