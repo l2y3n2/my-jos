@@ -149,6 +149,12 @@ trap_dispatch(struct Trapframe *tf)
 			time_tick();
 			sched_yield();
 			return;
+		case IRQ_OFFSET + IRQ_KBD:
+			kbd_intr();
+			return;
+		case IRQ_OFFSET + IRQ_SERIAL:
+			serial_intr();
+			return;
 		default:
 			break;
 	}
